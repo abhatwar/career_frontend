@@ -151,14 +151,11 @@ export default function Premium() {
       {content?.content_type === 'pdf' ? (
         <div className="max-w-5xl mx-auto px-2 sm:px-6 py-6">
           {pdfUrl ? (
-            <div className="relative">
-              {/* Transparent overlay — blocks right-click & pointer events on canvas */}
-              <div
-                className="absolute inset-0 z-20"
-                style={{ cursor: 'default' }}
-                onContextMenu={(e) => e.preventDefault()}
-              />
-              {/* Tiled watermark */}
+            <div
+              className="relative select-none"
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              {/* Tiled watermark — pointer-events:none so PDF canvas is fully visible */}
               <div
                 className="absolute inset-0 z-10 pointer-events-none"
                 style={{ backgroundImage: WATERMARK_SVG, backgroundRepeat: 'repeat' }}
@@ -172,10 +169,11 @@ export default function Premium() {
                   {user.email}
                 </div>
               )}
-              {/* PDF rendered as canvas — no toolbar, no download, no print button */}
+              {/* PDF rendered as canvas pages — no browser toolbar, no download/print */}
               <Document
                 file={pdfUrl}
                 onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+                onLoadError={(err) => setError(`Failed to render PDF: ${err.message}`)}
                 className="flex flex-col items-center gap-3"
                 loading={<LoadingSpinner fullScreen={false} />}
               >
@@ -186,7 +184,7 @@ export default function Premium() {
                       pageNumber={i + 1}
                       renderTextLayer={false}
                       renderAnnotationLayer={false}
-                      width={Math.min(typeof window !== 'undefined' ? window.innerWidth - 32 : 900, 900)}
+                      width={Math.min(window.innerWidth - 32, 900)}
                       className="shadow-xl rounded"
                     />
                   ))}
