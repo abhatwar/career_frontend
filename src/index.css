@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-dark text-white font-sans antialiased;
+  }
+
+  ::selection {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+  }
+}
+
+@layer components {
+  /* ── Buttons ─────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center
+           bg-white text-black font-semibold
+           px-6 py-3 rounded-lg
+           hover:bg-gray-100 active:scale-[0.97]
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-dark
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center
+           border border-border text-white font-medium
+           px-6 py-3 rounded-lg
+           hover:border-white/40 hover:bg-white/5 active:scale-[0.97]
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-dark
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+
+  /* ── Form ────────────────────────────────────────────────── */
+  .input-field {
+    @apply w-full bg-dark-3 border border-border text-white
+           placeholder-gray-600
+           px-4 py-3 rounded-lg outline-none
+           transition-all duration-200
+           focus:border-white/40 focus:ring-1 focus:ring-white/10;
+  }
+
+  /* ── Card ────────────────────────────────────────────────── */
+  .card {
+    @apply bg-dark-2 border border-border rounded-xl p-6;
+  }
+
+  /* ── Content Protection ──────────────────────────────────── */
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* ── Premium Content Body ────────────────────────────────── */
+  .premium-body h1,
+  .premium-body h2,
+  .premium-body h3,
+  .premium-body h4 {
+    @apply text-white font-semibold mt-8 mb-4;
+  }
+  .premium-body h1 { @apply text-2xl sm:text-3xl; }
+  .premium-body h2 { @apply text-xl sm:text-2xl; }
+  .premium-body h3 { @apply text-lg sm:text-xl; }
+  .premium-body p  { @apply text-gray-300 leading-relaxed mb-4; }
+  .premium-body ul,
+  .premium-body ol { @apply text-gray-300 pl-6 mb-4 space-y-2; }
+  .premium-body ul { @apply list-disc; }
+  .premium-body ol { @apply list-decimal; }
+  .premium-body li { @apply leading-relaxed; }
+  .premium-body strong { @apply text-white font-semibold; }
+  .premium-body em { @apply italic; }
+  .premium-body blockquote {
+    @apply border-l-4 border-white/20 pl-4 text-gray-400 italic my-4;
+  }
+  .premium-body hr { @apply border-border my-8; }
+  .premium-body a {
+    @apply text-white underline underline-offset-2 hover:text-gray-300 transition-colors;
+  }
+  .premium-body pre {
+    @apply bg-dark-3 border border-border rounded-lg p-4 overflow-x-auto my-4;
+  }
+  .premium-body code {
+    @apply bg-dark-3 border border-border rounded px-1.5 py-0.5 text-sm font-mono text-gray-300;
+  }
+  .premium-body pre code { @apply bg-transparent border-0 p-0; }
+  .premium-body table { @apply w-full border-collapse my-4; }
+  .premium-body th { @apply text-left text-gray-400 font-medium border-b border-border pb-2; }
+  .premium-body td { @apply text-gray-300 border-b border-dark-4 py-2 pr-4; }
+}
+
+/* ── Block Print entirely ────────────────────────────────────── */
+@media print {
+  html, body, * {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+/* ── Animation delay utilities ───────────────────────────────── */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* ── Opacity 0 base for animated elements ────────────────────── */
+.animate-fade-in,
+.animate-slide-up {
+  opacity: 0;
+}
