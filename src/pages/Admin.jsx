@@ -125,21 +125,37 @@ export default function Admin() {
     setSubmitting(true);
     setError('');
     try {
-      let payload;
-      let config = {};
-      if (form.content_type === 'pdf') {
-        const fd = new FormData();
-        Object.entries(form).forEach(([k, v]) => fd.append(k, String(v)));
-        if (pdfFile) fd.append('pdf', pdfFile);
-        payload = fd;
-        config = { headers: { 'Content-Type': 'multipart/form-data' } };
-      } else {
-        payload = form;
+      let payload = { ...form };
+
+      if (form.content_type === 'pdf' && pdfFile) {
+        // Step 1: Get a signed upload signature from backend
+        const sigRes = await api.get('/admin/upload-signature');
+        const { signature, timestamp, cloudName, apiKey, folder } = sigRes.data;
+
+        // Step 2: Upload PDF directly to Cloudinary (bypasses Vercel 4.5MB limit)
+        const cloudinaryForm = new FormData();
+        cloudinaryForm.append('file', pdfFile);
+        cloudinaryForm.append('signature', signature);
+        cloudinaryForm.append('timestamp', String(timestamp));
+        cloudinaryForm.append('api_key', apiKey);
+        cloudinaryForm.append('folder', folder);
+        cloudinaryForm.append('resource_type', 'raw');
+
+        const uploadRes = await fetch(
+          `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`,
+          { method: 'POST', body: cloudinaryForm }
+        );
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) throw new Error(uploadData.error?.message || 'Cloudinary upload failed.');
+
+        // Step 3: Include the Cloudinary URL in the content payload (no file in body)
+        payload.pdf_url = uploadData.secure_url;
       }
+
       if (editingId) {
-        await api.put(`/admin/content/${editingId}`, payload, config);
+        await api.put(`/admin/content/${editingId}`, payload);
       } else {
-        await api.post('/admin/content', payload, config);
+        await api.post('/admin/content', payload);
       }
       setShowForm(false);
       setEditingId(null);
@@ -147,7 +163,7 @@ export default function Admin() {
       setPdfFile(null);
       fetchContent();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save content.');
+      setError(err.response?.data?.message || err.message || 'Failed to save content.');
     } finally {
       setSubmitting(false);
     }
