@@ -139,7 +139,7 @@ export default function Admin() {
         cloudinaryForm.append('timestamp', String(timestamp));
         cloudinaryForm.append('api_key', apiKey);
         cloudinaryForm.append('folder', folder);
-        cloudinaryForm.append('resource_type', 'raw');
+        // Note: resource_type is in the URL (/raw/upload), NOT in the form body
 
         const uploadRes = await fetch(
           `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`,
