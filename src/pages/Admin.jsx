@@ -153,6 +153,16 @@ export default function Admin() {
     }
   };
 
+  const handleDeleteContent = async (id, title) => {
+    if (!window.confirm(`Delete "${title}"? This also removes the PDF from Cloudinary and cannot be undone.`)) return;
+    try {
+      await api.delete(`/admin/content/${id}`);
+      fetchContent();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete content.');
+    }
+  };
+
   // ── Stat cards data ─────────────────────────────────────────
   const statCards = stats
     ? [
@@ -529,6 +539,12 @@ export default function Admin() {
                         className="btn-secondary px-3 py-1.5 text-xs flex-shrink-0"
                       >
                         Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteContent(item._id, item.title)}
+                        className="px-3 py-1.5 text-xs flex-shrink-0 rounded-lg border border-red-500/40 text-red-400 hover:bg-red-500/10 transition-colors"
+                      >
+                        Delete
                       </button>
                     </div>
                   ))}
