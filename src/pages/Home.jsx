@@ -162,7 +162,7 @@ function ComingSoon({ onSignup }) {
 }
 
 // ── Product Live page ─────────────────────────────────────────────────────────
-function ProductPage({ content, hasAccess, purchasing, error, onBuyNow, onSignup, isAuthenticated }) {
+function ProductPage({ content, hasAccess, purchasing, error, onBuyNow, onSignup, isAuthenticated, allContents, accessSet, purchasingId, errors, onCardAction }) {
   const priceRupees = Math.round(content.price / 100);
   const typeLabel = TYPE_LABEL[content.content_type] || 'Premium Content';
 
@@ -261,45 +261,106 @@ function ProductPage({ content, hasAccess, purchasing, error, onBuyNow, onSignup
         </div>
       </section>
 
-      {/* Pricing card */}
-      <section className="py-24 px-4 border-t border-border" id="pricing">
-        <div className="max-w-md mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-3">Simple Pricing</h2>
-          <p className="text-gray-500 text-sm mb-12">No hidden fees. No subscriptions. Pay once.</p>
-
-          <div className="card border-white/15 p-8 sm:p-10 relative overflow-hidden">
-            <div aria-hidden className="absolute inset-0 pointer-events-none bg-gradient-to-br from-white/[0.025] to-transparent" />
-
-            <div className="inline-flex items-center gap-2 border border-white/10 bg-white/5 rounded-full px-3 py-1 text-xs text-gray-400 mb-6">
-              One-time purchase · {typeLabel}
+      {/* All content catalog */}
+      {allContents.length > 1 && (
+        <section className="py-24 px-4 border-t border-border">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-14">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3">Browse All Content</h2>
+              <p className="text-gray-500 text-sm">{allContents.length} item{allContents.length !== 1 ? 's' : ''} available — pay per content, own forever.</p>
             </div>
-
-            <div className="flex items-start justify-center gap-1 mb-2">
-              <span className="text-2xl text-gray-400 font-light mt-3">₹</span>
-              <span className="text-8xl font-bold tracking-tighter leading-none">{priceRupees}</span>
-            </div>
-            <p className="text-gray-500 text-sm mb-8">Lifetime access — pay once, own it forever</p>
-
-            <ul className="text-left space-y-3 mb-10">
-              {CHECKLIST.map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-gray-300 text-sm">
-                  <svg className="w-4 h-4 text-white flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  {item}
-                </li>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {allContents.map((item) => (
+                <div key={item._id}>
+                  <ContentCard
+                    item={item}
+                    owned={accessSet.has(item._id)}
+                    purchasing={purchasingId}
+                    onAction={onCardAction}
+                  />
+                  {errors[item._id] && (
+                    <p className="mt-2 text-red-400 text-xs px-1">{errors[item._id]}</p>
+                  )}
+                </div>
               ))}
-            </ul>
+            </div>
+          </div>
+        </section>
+      )}
 
-            <button
-              onClick={onBuyNow}
-              disabled={purchasing}
-              className="btn-primary w-full py-4 text-base disabled:opacity-60"
-            >
-              {purchasing ? 'Processing...' : hasAccess ? 'Access Content →' : `Buy Now — ₹${priceRupees}`}
-            </button>
+      {/* Career journey section */}
+      <section className="py-24 px-4 border-t border-border">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 border border-amber-500/30 bg-amber-500/5 rounded-full px-4 py-1.5 text-xs text-amber-400 mb-6 tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-slow" />
+              Your Career Starts Here
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4">From Confusion to Clarity —<br /><span className="text-gray-500 font-light">in Three Steps</span></h2>
+            <p className="text-gray-500 text-sm max-w-md mx-auto">Most people spend years figuring out their path. We compressed that into structured, expert-built content.</p>
+          </div>
 
-            {error && <p className="mt-4 text-red-400 text-xs text-center">{error}</p>}
+          {/* Steps */}
+          <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-6 mb-20">
+            {[
+              {
+                step: '01',
+                icon: (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                  </svg>
+                ),
+                title: 'Explore Topics',
+                desc: 'Browse our growing library of career guides — from tech and finance to design and law.',
+              },
+              {
+                step: '02',
+                icon: (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 11c0-1.657 1.343-3 3-3s3 1.343 3 3v1H6v-1c0-1.657 1.343-3 3-3s3 1.343 3 3zm0 0v1m0 4h.01M5 20h14a2 2 0 0 0 2-2v-5H3v5a2 2 0 0 0 2 2z" />
+                  </svg>
+                ),
+                title: 'Unlock Access',
+                desc: 'One-time payment per guide. No subscription. Yours forever — including every future update.',
+              },
+              {
+                step: '03',
+                icon: (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                ),
+                title: 'Build Your Career',
+                desc: 'Follow proven roadmaps, absorb expert insights, and move forward with absolute clarity.',
+              },
+            ].map((s, i) => (
+              <div key={i} className="card relative overflow-hidden group hover:border-white/20 transition-all duration-300 cursor-default">
+                <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.025] to-transparent pointer-events-none" />
+                <div className="flex items-start justify-between mb-5">
+                  <div className="w-11 h-11 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-white group-hover:border-white/20 transition-all duration-300">
+                    {s.icon}
+                  </div>
+                  <span className="text-4xl font-bold text-dark-3 group-hover:text-dark-2 transition-colors duration-300 select-none">{s.step}</span>
+                </div>
+                <h3 className="text-white font-semibold mb-2">{s.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats strip */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { value: '50+', label: 'Career Paths Covered' },
+              { value: '1×', label: 'Pay Once, Own Forever' },
+              { value: '100%', label: 'Expert-Curated Content' },
+              { value: '∞', label: 'Lifetime Updates Included' },
+            ].map((stat, i) => (
+              <div key={i} className="rounded-2xl border border-border bg-white/[0.02] px-5 py-6 text-center">
+                <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
+                <div className="text-gray-600 text-xs leading-tight">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -322,59 +383,119 @@ function Footer() {
   );
 }
 
+// ── Content Catalog Card ──────────────────────────────────────────────────────
+function ContentCard({ item, owned, purchasing, onAction }) {
+  const priceRupees = Math.round(item.price / 100);
+  const typeLabel = TYPE_LABEL[item.content_type] || 'Premium Content';
+  const isActive = purchasing === item._id;
+
+  return (
+    <div className="card border-white/10 hover:border-white/20 transition-all duration-300 flex flex-col gap-4">
+      {/* Type badge */}
+      <div className="flex items-center justify-between">
+        <span className="inline-flex items-center gap-1.5 border border-white/10 bg-white/5 rounded-full px-3 py-1 text-[10px] text-gray-400 uppercase tracking-wider">
+          {typeLabel}
+        </span>
+        {owned && (
+          <span className="inline-flex items-center gap-1.5 text-green-400 text-[10px] uppercase tracking-wider">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            Owned
+          </span>
+        )}
+      </div>
+
+      {/* Title & description */}
+      <div className="flex-1">
+        <h3 className="text-white font-semibold text-base mb-2 leading-snug">{item.title}</h3>
+        {item.description && (
+          <p className="text-gray-500 text-sm leading-relaxed line-clamp-3">{item.description}</p>
+        )}
+      </div>
+
+      {/* Price + CTA */}
+      <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
+        <span className="text-xl font-bold text-white">₹{priceRupees}</span>
+        <button
+          onClick={() => onAction(item)}
+          disabled={isActive}
+          className="btn-primary px-5 py-2 text-sm disabled:opacity-60"
+        >
+          {isActive ? (
+            <span className="flex items-center gap-2">
+              <span className="w-3.5 h-3.5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+              Processing...
+            </span>
+          ) : owned ? (
+            'View Content →'
+          ) : (
+            'Get Access'
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Main export ───────────────────────────────────────────────────────────────
 export default function Home() {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
-  const [content, setContent] = useState(null);
+  const [allContents, setAllContents] = useState([]);
   const [contentLoading, setContentLoading] = useState(true);
-  const [hasAccess, setHasAccess] = useState(false);
-  const [purchasing, setPurchasing] = useState(false);
-  const [error, setError] = useState('');
+  // Set of contentIds the user has purchased
+  const [accessSet, setAccessSet] = useState(new Set());
+  // Which contentId is currently being purchased
+  const [purchasingId, setPurchasingId] = useState(null);
+  const [errors, setErrors] = useState({}); // { [contentId]: message }
 
+  // Fetch all active content
   useEffect(() => {
     api
       .get('/content')
       .then((res) => {
-        if (res.data.content?.length > 0) setContent(res.data.content[0]);
+        if (res.data.content?.length > 0) setAllContents(res.data.content);
       })
       .catch(() => {})
       .finally(() => setContentLoading(false));
   }, []);
 
+  // Fetch all purchased content IDs for logged-in user
   useEffect(() => {
-    if (!isAuthenticated || !content) return;
+    if (!isAuthenticated) return;
     api
-      .get(`/payment/access/${content._id}`)
-      .then((res) => setHasAccess(res.data.hasAccess))
+      .get('/payment/my-access')
+      .then((res) => {
+        if (res.data.success) setAccessSet(new Set(res.data.contentIds));
+      })
       .catch(() => {});
-  }, [isAuthenticated, content]);
+  }, [isAuthenticated]);
 
-  const handleBuyNow = async () => {
+  const handleAction = async (item) => {
     if (!isAuthenticated) {
       navigate('/login', { state: { from: '/' } });
       return;
     }
-    if (hasAccess) {
-      navigate(`/premium/${content._id}`);
+    if (accessSet.has(item._id)) {
+      navigate(`/premium/${item._id}`);
       return;
     }
-    if (!content) return;
 
-    setPurchasing(true);
-    setError('');
+    setPurchasingId(item._id);
+    setErrors((prev) => ({ ...prev, [item._id]: '' }));
 
     try {
-      const orderRes = await api.post('/payment/create-order', { contentId: content._id });
+      const orderRes = await api.post('/payment/create-order', { contentId: item._id });
 
       if (!orderRes.data.success) {
         if (orderRes.data.alreadyPurchased) {
-          setHasAccess(true);
-          navigate(`/premium/${content._id}`);
+          setAccessSet((prev) => new Set([...prev, item._id]));
+          navigate(`/premium/${item._id}`);
           return;
         }
-        setError(orderRes.data.message);
+        setErrors((prev) => ({ ...prev, [item._id]: orderRes.data.message }));
         return;
       }
 
@@ -385,7 +506,7 @@ export default function Home() {
         amount,
         currency,
         name: 'Career Encyclopedia',
-        description: content.title,
+        description: item.title,
         order_id: orderId,
         handler: async (response) => {
           try {
@@ -393,52 +514,60 @@ export default function Home() {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              contentId: content._id,
+              contentId: item._id,
             });
             if (verifyRes.data.success) {
-              setHasAccess(true);
-              navigate(`/premium/${content._id}`);
+              setAccessSet((prev) => new Set([...prev, item._id]));
+              navigate(`/premium/${item._id}`);
             } else {
-              setError('Payment verification failed. Please contact support.');
+              setErrors((prev) => ({ ...prev, [item._id]: 'Payment verification failed. Please contact support.' }));
             }
           } catch {
-            setError('Payment verification failed. Please contact support.');
+            setErrors((prev) => ({ ...prev, [item._id]: 'Payment verification failed. Please contact support.' }));
           } finally {
-            setPurchasing(false);
+            setPurchasingId(null);
           }
         },
         prefill: { name: user?.name || '', email: user?.email || '' },
         theme: { color: '#ffffff' },
-        modal: { ondismiss: () => setPurchasing(false), animation: true },
+        modal: { ondismiss: () => setPurchasingId(null), animation: true },
       };
 
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', () => {
-        setError('Payment failed. Please try again.');
-        setPurchasing(false);
+        setErrors((prev) => ({ ...prev, [item._id]: 'Payment failed. Please try again.' }));
+        setPurchasingId(null);
       });
       rzp.open();
     } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
-      setPurchasing(false);
+      setErrors((prev) => ({ ...prev, [item._id]: err.response?.data?.message || 'Something went wrong. Please try again.' }));
+      setPurchasingId(null);
     }
   };
 
   if (contentLoading) return <LoadingSpinner />;
 
-  if (!content) {
+  if (allContents.length === 0) {
     return <ComingSoon onSignup={() => navigate('/signup')} />;
   }
 
+  const featured = allContents[0];
+  const featuredOwned = accessSet.has(featured._id);
+
   return (
     <ProductPage
-      content={content}
-      hasAccess={hasAccess}
-      purchasing={purchasing}
-      error={error}
-      onBuyNow={handleBuyNow}
+      content={featured}
+      hasAccess={featuredOwned}
+      purchasing={purchasingId === featured._id}
+      error={errors[featured._id] || ''}
+      onBuyNow={() => handleAction(featured)}
       onSignup={() => navigate('/signup')}
       isAuthenticated={isAuthenticated}
+      allContents={allContents}
+      accessSet={accessSet}
+      purchasingId={purchasingId}
+      errors={errors}
+      onCardAction={handleAction}
     />
   );
 }
