@@ -49,21 +49,26 @@ export default function Premium() {
     if (!content || content.content_type !== 'pdf') return;
 
     let objectUrl;
-    const token = localStorage.getItem('token');
-    fetch(`/api/content/${contentId}/view-pdf`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    let mounted = true;
+    api
+      .get(`/content/${contentId}/view-pdf`, { responseType: 'blob' })
       .then((res) => {
-        if (!res.ok) throw new Error('Access denied');
-        return res.blob();
-      })
-      .then((blob) => {
-        objectUrl = URL.createObjectURL(blob);
+        if (!mounted) return;
+        objectUrl = URL.createObjectURL(res.data);
         setPdfUrl(objectUrl);
       })
-      .catch(() => setError('Failed to load PDF. Please try again.'));
+      .catch((err) => {
+        if (!mounted) return;
+        const status = err.response?.status;
+        if (status === 403) {
+          setError('Purchase required to access this content.');
+        } else {
+          setError('Failed to load PDF. Please try again.');
+        }
+      });
 
     return () => {
+      mounted = false;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [content, contentId]);
